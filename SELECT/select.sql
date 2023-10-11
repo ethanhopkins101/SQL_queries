@@ -132,3 +132,88 @@ FROM
 WHERE
     dept_no IS NOT NULL;
 
+#Retrieve a list with data about all female employees who were hired in the year 2000 or after.
+#Hint: If you solve the task correctly, SQL should return 7 rows.
+#Extract a list with all employees’ salaries higher than $150,000 per annum.
+
+SELECT 
+    *
+FROM
+    employees
+WHERE
+    gender = 'F'
+        AND hire_date > '2000-01-01';
+
+SELECT 
+    *
+FROM
+    salaries
+WHERE
+    SALARY > 150000;
+
+#Obtain a list with all different “hire dates” from the “employees” table.
+
+SELECT DISTINCT
+    hire_date
+FROM
+    employees
+LIMIT 10000;
+    
+#How many annual contracts with a value higher than or equal to $100,000 have been registered in the salaries table?
+#How many managers do we have in the “employees” database? Use the star symbol (*) in your code to solve this exercise.
+
+SELECT 
+    COUNT(*)
+FROM
+    salaries
+WHERE
+    salary >= 100000;
+    
+SELECT 
+    COUNT(*)
+FROM
+    dept_manager;
+    
+#Select all data from the “employees” table, ordering it by “hire date” in descending order.
+SELECT 
+    *
+FROM
+    employees
+ORDER BY hire_date DESC;
+
+#Write a query that obtains two columns. The first column must contain annual salaries higher than 80,000 dollars.
+#The second column, renamed to “emps_with_same_salary”,
+#must show the number of employees contracted to that salary. Lastly, sort the output by the first column.
+
+SELECT 
+    salary, COUNT(salary) AS 'emps_with_same_salary'
+FROM
+    salaries
+GROUP BY salary
+HAVING salary > 80000
+ORDER BY salary
+;
+
+#Select all employees whose average salary is higher than $120,000 per annum.
+#Hint: You should obtain 101 records.
+
+SELECT 
+    emp_no, AVG(salary)
+FROM
+    salaries
+GROUP BY emp_no
+HAVING AVG(salary) > 120000
+ORDER BY emp_no;
+
+#Select the employee numbers of all individuals who have signed more than 1 contract after the 1st of January 2000.
+#Hint: To solve this exercise, use the “dept_emp” table.
+
+SELECT 
+    emp_no
+FROM
+    dept_emp
+WHERE
+    from_date >= '2000-01-01'
+GROUP BY emp_no
+HAVING COUNT(from_date) > 1
+ORDER BY emp_no;
