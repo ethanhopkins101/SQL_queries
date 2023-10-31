@@ -62,17 +62,75 @@ WHERE t.title='Manager';
 #Hint: Create an output containing information corresponding to the following fields: ‘emp_no’,
 # ‘first_name’, ‘last_name’, ‘dept_no’, ‘from_date’. Order by 'dept_no' descending, and then by 'emp_no'.
 
+SELECT * FROM dept_manager;
+SELECT * FROM employees;
+SELECT e.emp_no,e.first_name,e.last_name,m.dept_no,m.from_date,e.gender
+FROM employees e
+JOIN dept_manager m 
+ON e.emp_no=m.emp_no
+WHERE e.last_name='Markovitch'
+ORDER BY dept_no DESC,emp_no;
 
+#Extract a list containing information about all managers’ employee number, first and last name, department number,
+#and hire date. Use the old type of join syntax to obtain the result.
+
+SELECT e.emp_no,e.first_name,e.last_name,m.dept_no,m.from_date
+FROM employees e,dept_manager m
+WHERE e.emp_no=m.emp_no;
+
+#Select the first and last name, the hire date, and the job title of all
+#employees whose first name is “Margareta” and have the last name “Markovitch”.
+
+SELECT e.emp_no,e.first_name,e.last_name,e.hire_date,t.title
+FROM employees e
+JOIN titles t
+ON e.emp_no=t.emp_no
+WHERE first_name='Margareta' AND last_name='Markovitch';
+
+#Use a CROSS JOIN to return a list with all possible combinations between managers from the dept_manager table and department number 9.
 SELECT *
 FROM dept_manager;
 
-SELECT e.first_name,e.last_name,m.dept_no
+SELECT de.*,m.*
+FROM dept_emp de
+CROSS JOIN dept_manager m
+WHERE de.dept_no='d009';
+
+
+#Return a list with the first 10 employees with all the departments they can be assigned to.
+#Hint: Don’t use LIMIT; use a WHERE clause.
+
+SELECT e.*,m.*
+FROM employees e
+CROSS JOIN dept_emp m
+WHERE e.emp_no < 10011;
+
+#Select all managers’ first and last name, hire date, job title, start date, and department name.
+
+SELECT * FROM titles;
+SELECT * FROM dept_manager;
+SELECT * FROM departments;
+
+SELECT e.first_name,e.last_name,e.hire_date,t.title,m.from_date,d.dept_name
+FROM employees  e
+JOIN titles t ON e.emp_no=t.emp_no
+JOIN dept_manager m ON e.emp_no=m.emp_no
+JOIN departments d ON m.dept_no=d.dept_no
+WHERE title='Manager'
+ORDER BY e.emp_no;
+
+#How many male and how many female managers do we have in the ‘employees’ database?
+SELECT * FROM dept_manager;
+SELECT * FROM employees;
+SELECT COUNT(*)
 FROM employees e
 JOIN dept_manager m ON e.emp_no=m.emp_no
-WHERE e.last_name='Markovitch';
+WHERE e.gender='M';
 
-SELECT e.first_name,e.last_name,m.dept_no
+SELECT e.gender,COUNT(m.emp_no)
 FROM employees e
-LEFT JOIN dept_manager m ON e.emp_no=m.emp_no
-WHERE e.last_name='Markovitch'
-ORDER BY dept_no DESC;
+JOIN dept_manager m ON e.emp_no=m.emp_no
+GROUP BY e.gender;
+
+#Go forward to the solution and execute the query. What do you think is
+#the meaning of the minus sign before subset A in the last row (ORDER BY -a.emp_no DESC)? 
