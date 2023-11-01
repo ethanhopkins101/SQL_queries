@@ -30,10 +30,20 @@ SELECT m.Name,AVG(p.Price) FROM products p JOIN manufacturers m ON p.Manufacture
 -- 1.14 Select the names of manufacturer whose products have an average price larger than or equal to $150.
 SELECT m.Name,AVG(p.Price) FROM products p JOIN manufacturers m ON p.Manufacturer=m.Code GROUP BY m.Name HAVING AVG(p.Price)>=150;
 -- 1.15 Select the name and price of the cheapest product.
-SELECT Name,Price FROM (SELECT MIN(Price) FROM products);
+SELECT Name,Price FROM products WHERE price=(SELECT MIN(Price) FROM products);
 -- 1.16 Select the name of each manufacturer along with the name and price of its most expensive product.
-
+SELECT * FROM products GROUP BY Manufacturer HAVING Price=(SELECT MAX(Price) FROM products GROUP BY Manufacturer);
+SELECT m.Name,p.Name,p.Price FROM manufacturers m JOIN products p ON p.Manufacturer=m.Code GROUP BY m.Name HAVING p.Price<;
 -- 1.17 Add a new product: Loudspeakers, $70, manufacturer 2.
+SELECT * FROM products;
+INSERT INTO products VALUES(11,'Loudspeakers',70,2);
+SELECT * FROM products;
 -- 1.18 Update the name of product 8 to "Laser Printer".
+UPDATE products SET Name='Laser Printer' WHERE Code=8;
+SELECT * FROM products;
 -- 1.19 Apply a 10% discount to all products.
+UPDATE products SET Price=Price-Price/10;
+SELECT * FROM products;
 -- 1.20 Apply a 10% discount to all products with a price larger than or equal to $120.
+UPDATE products SET Price=Price-Price/10 WHERE Price>=120;
+SELECT * FROM products;
