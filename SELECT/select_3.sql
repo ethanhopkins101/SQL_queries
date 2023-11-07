@@ -30,13 +30,17 @@ SELECT e.Name,e.LastName,d.Name,d.Budget FROM employees e JOIN departments d ON 
 SELECT * FROM departments;
 SELECT Name,Budget FROM departments WHERE Budget>(SELECT AVG(Budget) FROM departments);
 -- 2.14 Select the names of departments with more than two employees.
+SELECT * FROM departments;
 SELECT * FROM employees;
-SELECT d.Name,q.count FROM departments d JOIN (
-SELECT Department,COUNT(*) AS count FROM employees GROUP BY Department HAVING COUNT(*)>2) q
-ON d.Code=q.Department;
+SELECT d.Name,q.Count FROM departments d JOIN
+(SELECT Department AS Code,COUNT(*)AS Count FROM employees GROUP BY Department HAVING COUNT(*)>2) q
+ON d.Code=q.Code;
 -- 2.15 Very Important - Select the name and last name of employees working for departments with second lowest budget
-SELECT e.Name,e.LastName FROM employees e JOIN (
-SELECT Code,Name,Budget FROM departments WHERE Budget=(SELECT MIN(Budget) FROM departments WHERE Budget>(SELECT Budget FROM departments ORDER BY Budget ASC Limit 1))) q ON e.Department=q.Code; 
+ SELECT * FROM departments;
+SELECT * FROM employees;
+SELECT e.Name,e.LastName,q.Name FROM employees e JOIN(
+SELECT Code,Name,Budget FROM departments WHERE Budget=
+(SELECT MIN(Budget) FROM departments WHERE Budget>(SELECT MIN(Budget) FROM departments))) q ON e.Department=q.Code;
 -- 2.16  Add a new department called "Quality Assurance", with a budget of $40,000 and departmental code 11.
 SELECT * FROM departments; 
 INSERT INTO departments VALUES(11,'Quality Assurance',40000);
@@ -48,8 +52,10 @@ UPDATE departments SET Budget=Budget-Budget/10;
 -- 2.18 Reassign all employees from the Research department (code 77) to the IT department (code 14).
 UPDATE employees SET Department=14 WHERE Department=77;
 -- 2.19 Delete from the table all employees in the IT department (code 14).
-#DELETE FROM employees WHERE Department=14;
+SELECT * FROM employees;
+DELETE FROM employees WHERE Department=14;
 -- 2.20 Delete from the table all employees who work in departments with a budget greater than or equal to $60,000.
-#DELETE FROM employees WHERE Department=(SELECT Code FROM deparments WHERE Budget>=60000);
+DELETE FROM employees WHERE Department=(SELECT Code FROM departments WHERE Budget>=60000);
 -- 2.21 Delete from the table all employees.
-#DELETE FROM employees;
+DELETE FROM employees;
+SELECT * FROM employees;
