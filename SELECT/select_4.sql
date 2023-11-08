@@ -48,8 +48,11 @@ SELECT DISTINCT(boxes.Warehouse)FROM boxes JOIN (
 SELECT b.Warehouse,COUNT(*) AS Count,q.Capacity FROM boxes b JOIN (SELECT Code,Capacity FROM warehouses) q ON b.Warehouse=q.Code GROUP BY b.Warehouse HAVING Count>=Capacity)q ON boxes.Warehouse=q.Warehouse);
 -- 3.16 Add Index for column "Warehouse" in table "boxes"
 SELECT * FROM boxes;
+CREATE INDEX Warehouse_ind ON boxes(Warehouse);
     -- !!!NOTE!!!: index should NOT be used on small tables in practice
 -- 3.17 Print all the existing indexes
+SHOW INDEX FROM boxes;
     -- !!!NOTE!!!: index should NOT be used on small tables in practice
 -- 3.18 Remove (drop) the index you added just
+ALTER TABLE boxes DROP INDEX Warehouse_ind;
     -- !!!NOTE!!!: index should NOT be used on small tables in practice
