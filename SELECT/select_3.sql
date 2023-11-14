@@ -1,61 +1,58 @@
--- LINK : https://en.wikibooks.org/wiki/SQL_Exercises/Employee_management
--- 2.1 Select the last name of all employees.
-SELECT * FROM departments;
-SELECT * FROM employees;
-SELECT LastName FROM employees;
--- 2.2 Select the last name of all employees, without duplicates.
-SELECT DISTINCT(LastName) FROM employees;
--- 2.3 Select all the data of employees whose last name is "Smith".
-SELECT * FROM employees WHERE LastName='Smith';
--- 2.4 Select all the data of employees whose last name is "Smith" or "Doe".
-SELECT * FROM employees WHERE LastName IN ('Smith','Doe');
--- 2.5 Select all the data of employees that work in department 14.
-SELECT * FROM employees WHERE Department=14;
--- 2.6 Select all the data of employees that work in department 37 or department 77.
-SELECT * FROM employees WHERE Department in (37,77);
--- 2.7 Select all the data of employees whose last name begins with an "S".
-SELECT * FROM employees WHERE LastName LIKE 'S%';
--- 2.8 Select the sum of all the departments' budgets.
-SELECT * FROM employees;
-SELECT SUM(Budget)AS 'Budget Total' FROM departments;
--- 2.9 Select the number of employees in each department (you only need to show the department code and the number of employees).
-SELECT Department,COUNT(*) from employees GROUP BY Department;
--- 2.10 Select all the data of employees, including each employee's department's data.
-SELECT * FROM employees e JOIN departments d ON e.Department=d.Code;
--- 2.11 Select the name and last name of each employee, along with the name and budget of the employee's department.
-SELECT e.Name,e.LastName,d.Name,d.Budget FROM employees e JOIN departments d ON e.Department=d.Code;
--- 2.12 Select the name and last name of employees working for departments with a budget greater than $60,000.
-SELECT e.Name,e.LastName,d.Name,d.Budget FROM employees e JOIN departments d ON e.Department=d.Code WHERE d.Budget>60000;
--- 2.13 Select the departments with a budget larger than the average budget of all the departments.
-SELECT * FROM departments;
-SELECT Name,Budget FROM departments WHERE Budget>(SELECT AVG(Budget) FROM departments);
--- 2.14 Select the names of departments with more than two employees.
-SELECT * FROM departments;
-SELECT * FROM employees;
-SELECT d.Name,q.Count FROM departments d JOIN
-(SELECT Department AS Code,COUNT(*)AS Count FROM employees GROUP BY Department HAVING COUNT(*)>2) q
-ON d.Code=q.Code;
--- 2.15 Very Important - Select the name and last name of employees working for departments with second lowest budget
- SELECT * FROM departments;
-SELECT * FROM employees;
-SELECT e.Name,e.LastName,q.Name FROM employees e JOIN(
-SELECT Code,Name,Budget FROM departments WHERE Budget=
-(SELECT MIN(Budget) FROM departments WHERE Budget>(SELECT MIN(Budget) FROM departments))) q ON e.Department=q.Code;
--- 2.16  Add a new department called "Quality Assurance", with a budget of $40,000 and departmental code 11.
-SELECT * FROM departments; 
-INSERT INTO departments VALUES(11,'Quality Assurance',40000);
--- And Add an employee called "Mary Moore" in that department, with SSN 847-21-9811.
-SELECT * FROM employees;
-INSERT INTO employees VALUES (847219811,'Mary','Moore',11);
--- 2.17 Reduce the budget of all departments by 10%.
-UPDATE departments SET Budget=Budget-Budget/10;
--- 2.18 Reassign all employees from the Research department (code 77) to the IT department (code 14).
-UPDATE employees SET Department=14 WHERE Department=77;
--- 2.19 Delete from the table all employees in the IT department (code 14).
-SELECT * FROM employees;
-DELETE FROM employees WHERE Department=14;
--- 2.20 Delete from the table all employees who work in departments with a budget greater than or equal to $60,000.
-DELETE FROM employees WHERE Department=(SELECT Code FROM departments WHERE Budget>=60000);
--- 2.21 Delete from the table all employees.
-DELETE FROM employees;
-SELECT * FROM employees;
+-- The Warehouse
+-- lINK: https://en.wikibooks.org/wiki/SQL_Exercises/The_warehouse
+-- 3.1 Select all warehouses.
+SELECT * FROM warehouses;
+SELECT * FROM boxes;
+-- 3.2 Select all boxes with a value larger than $150.
+SELECT * FROM boxes WHERE value>150;
+-- 3.3 Select all distinct contents in all the boxes.
+SELECT DISTINCT(Contents) FROM boxes;
+-- 3.4 Select the average value of all the boxes.
+SELECT * FROM boxes;
+SELECT ROUND(AVG(Value),2) FROM boxes;
+-- 3.5 Select the warehouse code and the average value of the boxes in each warehouse.
+SELECT * FROM warehouses;
+SELECT * FROM boxes;
+SELECT w.Location,q.Warehouse,q.Average AVG FROM warehouses w JOIN(
+SELECT Warehouse,AVG(Value) AS Average FROM boxes GROUP BY Warehouse)q ON w.Code=q.Warehouse;
+-- 3.6 Same as previous exercise, but select only those warehouses where the average value of the boxes is greater than 150.
+SELECT Warehouse,AVG(Value)AS Average FROM boxes GROUP BY Warehouse HAVING Average>150;
+-- 3.7 Select the code of each box, along with the name of the city the box is located in.
+SELECT b.Code,w.Location FROM boxes b JOIN warehouses w ON b.Warehouse=w.Code;
+-- 3.8 Select the warehouse codes, along with the number of boxes in each warehouse.
+SELECT * FROM warehouses;
+SELECT * FROM boxes;
+SELECT Warehouse,COUNT(*) FROM boxes GROUP BY Warehouse;
+
+-- Optionally, take into account that some warehouses are empty (i.e., the box count should show up as zero, instead of omitting the warehouse from the result).
+SELECT b.Warehouse,COUNT(*) FROM boxes b LEFT JOIN warehouses w ON b.Warehouse=w.Code GROUP BY b.Warehouse;
+-- 3.9 Select the codes of all warehouses that are saturated (a warehouse is saturated if the number of boxes in it is larger than the warehouse's capacity).
+SELECT b.Warehouse,w.Location,COUNT(*)AS Count,w.Capacity FROM boxes b JOIN warehouses w ON (b.Warehouse=w.Code ) GROUP BY b.Warehouse HAVING Count>=w.Capacity;
+-- 3.10 Select the codes of all the boxes located in Chicago.
+SELECT * FROM warehouses;
+SELECT * FROM boxes b JOIN (
+SELECT * FROM warehouses WHERE Location='Chicago') q ON b.Warehouse=q.Code;
+-- 3.11 Create a new warehouse in New York with a capacity for 3 boxes.
+SELECT * FROM warehouses;
+INSERT INTO warehouses VALUES (6,'New York',3);
+-- 3.12 Create a new box, with code "H5RT", containing "Papers" with a value of $200, and located in warehouse 2.
+INSERT INTO boxes VALUES ('H5RT','Papers',200,2);
+-- 3.13 Reduce the value of all boxes by 15%.
+SELECT * FROM boxes;
+UPDATE boxes SET Value=Value-Value*0.15;
+-- 3.14 Remove all boxes with a value lower than $100.
+DELETE FROM boxes WHERE Value<100;
+-- 3.15 Remove all boxes from saturated warehouses.
+DELETE FROM boxes WHERE Warehouse IN (
+SELECT DISTINCT(boxes.Warehouse)FROM boxes JOIN (
+SELECT b.Warehouse,COUNT(*) AS Count,q.Capacity FROM boxes b JOIN (SELECT Code,Capacity FROM warehouses) q ON b.Warehouse=q.Code GROUP BY b.Warehouse HAVING Count>=Capacity)q ON boxes.Warehouse=q.Warehouse);
+-- 3.16 Add Index for column "Warehouse" in table "boxes"
+SELECT * FROM boxes;
+CREATE INDEX Warehouse_ind ON boxes(Warehouse);
+    -- !!!NOTE!!!: index should NOT be used on small tables in practice
+-- 3.17 Print all the existing indexes
+SHOW INDEX FROM boxes;
+    -- !!!NOTE!!!: index should NOT be used on small tables in practice
+-- 3.18 Remove (drop) the index you added just
+ALTER TABLE boxes DROP INDEX Warehouse_ind;
+    -- !!!NOTE!!!: index should NOT be used on small tables in practice

@@ -1,49 +1,61 @@
-SELECT * FROM manufacturers;
-SELECT * FROM products;
-
--- 1.1 Select the names of all the products in the store.
-SELECT DISTINCT(Name) FROM products;
--- 1.2 Select the names and the prices of all the products in the store.
-SELECT Name,Price FROM products;
--- 1.3 Select the name of the products with a price less than or equal to $200.
-SELECT Name,Price FROM products WHERE Price<= 200;
--- 1.4 Select all the products with a price between $60 and $120.
-SELECT Name,Price FROM products WHERE Price BETWEEN 60 AND 120;
--- 1.5 Select the name and price in cents (i.e., the price must be multiplied by 100).
-SELECT Name,Price*100 AS 'Price(cents)' FROM products ;
--- 1.6 Compute the average price of all the products.
-SELECT COUNT(*) AS 'nb of products',AVG(Price) AS 'Average price' FROM products;
--- 1.7 Compute the average price of all products with manufacturer code equal to 2.
-SELECT COUNT(*) AS 'nb of products',AVG(Price) AS 'Average price' FROM products WHERE Manufacturer=2;
--- 1.8 Compute the number of products with a price larger than or equal to $180.
-SELECT COUNT(*) AS 'Nb of products' FROM products WHERE price>=180;
--- 1.9 Select the name and price of all products with a price larger than or equal to $180, and sort first by price (in descending order), and then by name (in ascending order).
-SELECT Name,Price FROM products WHERE Price>=180 ORDER BY Price DESC,Name;
--- 1.10 Select all the data from the products, including all the data for each product's manufacturer.
-SELECT * FROM products p LEFT JOIN manufacturers m on p.Manufacturer=m.Code;
--- 1.11 Select the product name, price, and manufacturer name of all the products.
-SELECT p.Name,p.Price,m.Name FROM products p JOIN manufacturers m on p.Manufacturer=m.Code;
--- 1.12 Select the average price of each manufacturer's products, showing only the manufacturer's code.
-SELECT m.Code,AVG(p.Price) FROM products p JOIN manufacturers m on p.Manufacturer=m.Code GROUP BY m.Code;
--- 1.13 Select the average price of each manufacturer's products, showing the manufacturer's name.
-SELECT m.Name,AVG(p.Price) FROM products p JOIN manufacturers m ON p.Manufacturer=m.Code GROUP BY m.Name;
--- 1.14 Select the names of manufacturer whose products have an average price larger than or equal to $150.
-SELECT m.Name,AVG(p.Price) FROM products p JOIN manufacturers m ON p.Manufacturer=m.Code GROUP BY m.Name HAVING AVG(p.Price)>=150;
--- 1.15 Select the name and price of the cheapest product.
-SELECT Name,Price FROM products WHERE price=(SELECT MIN(Price) FROM products);
--- 1.16 Select the name of each manufacturer along with the name and price of its most expensive product.
-SELECT * FROM products GROUP BY Manufacturer HAVING Price=(SELECT MAX(Price) FROM products GROUP BY Manufacturer);
-SELECT m.Name,p.Name,p.Price FROM manufacturers m JOIN products p ON p.Manufacturer=m.Code GROUP BY m.Name HAVING p.Price<;
--- 1.17 Add a new product: Loudspeakers, $70, manufacturer 2.
-SELECT * FROM products;
-INSERT INTO products VALUES(11,'Loudspeakers',70,2);
-SELECT * FROM products;
--- 1.18 Update the name of product 8 to "Laser Printer".
-UPDATE products SET Name='Laser Printer' WHERE Code=8;
-SELECT * FROM products;
--- 1.19 Apply a 10% discount to all products.
-UPDATE products SET Price=Price-Price/10;
-SELECT * FROM products;
--- 1.20 Apply a 10% discount to all products with a price larger than or equal to $120.
-UPDATE products SET Price=Price-Price/10 WHERE Price>=120;
-SELECT * FROM products;
+-- LINK : https://en.wikibooks.org/wiki/SQL_Exercises/Employee_management
+-- 2.1 Select the last name of all employees.
+SELECT * FROM departments;
+SELECT * FROM employees;
+SELECT LastName FROM employees;
+-- 2.2 Select the last name of all employees, without duplicates.
+SELECT DISTINCT(LastName) FROM employees;
+-- 2.3 Select all the data of employees whose last name is "Smith".
+SELECT * FROM employees WHERE LastName='Smith';
+-- 2.4 Select all the data of employees whose last name is "Smith" or "Doe".
+SELECT * FROM employees WHERE LastName IN ('Smith','Doe');
+-- 2.5 Select all the data of employees that work in department 14.
+SELECT * FROM employees WHERE Department=14;
+-- 2.6 Select all the data of employees that work in department 37 or department 77.
+SELECT * FROM employees WHERE Department in (37,77);
+-- 2.7 Select all the data of employees whose last name begins with an "S".
+SELECT * FROM employees WHERE LastName LIKE 'S%';
+-- 2.8 Select the sum of all the departments' budgets.
+SELECT * FROM employees;
+SELECT SUM(Budget)AS 'Budget Total' FROM departments;
+-- 2.9 Select the number of employees in each department (you only need to show the department code and the number of employees).
+SELECT Department,COUNT(*) from employees GROUP BY Department;
+-- 2.10 Select all the data of employees, including each employee's department's data.
+SELECT * FROM employees e JOIN departments d ON e.Department=d.Code;
+-- 2.11 Select the name and last name of each employee, along with the name and budget of the employee's department.
+SELECT e.Name,e.LastName,d.Name,d.Budget FROM employees e JOIN departments d ON e.Department=d.Code;
+-- 2.12 Select the name and last name of employees working for departments with a budget greater than $60,000.
+SELECT e.Name,e.LastName,d.Name,d.Budget FROM employees e JOIN departments d ON e.Department=d.Code WHERE d.Budget>60000;
+-- 2.13 Select the departments with a budget larger than the average budget of all the departments.
+SELECT * FROM departments;
+SELECT Name,Budget FROM departments WHERE Budget>(SELECT AVG(Budget) FROM departments);
+-- 2.14 Select the names of departments with more than two employees.
+SELECT * FROM departments;
+SELECT * FROM employees;
+SELECT d.Name,q.Count FROM departments d JOIN
+(SELECT Department AS Code,COUNT(*)AS Count FROM employees GROUP BY Department HAVING COUNT(*)>2) q
+ON d.Code=q.Code;
+-- 2.15 Very Important - Select the name and last name of employees working for departments with second lowest budget
+ SELECT * FROM departments;
+SELECT * FROM employees;
+SELECT e.Name,e.LastName,q.Name FROM employees e JOIN(
+SELECT Code,Name,Budget FROM departments WHERE Budget=
+(SELECT MIN(Budget) FROM departments WHERE Budget>(SELECT MIN(Budget) FROM departments))) q ON e.Department=q.Code;
+-- 2.16  Add a new department called "Quality Assurance", with a budget of $40,000 and departmental code 11.
+SELECT * FROM departments; 
+INSERT INTO departments VALUES(11,'Quality Assurance',40000);
+-- And Add an employee called "Mary Moore" in that department, with SSN 847-21-9811.
+SELECT * FROM employees;
+INSERT INTO employees VALUES (847219811,'Mary','Moore',11);
+-- 2.17 Reduce the budget of all departments by 10%.
+UPDATE departments SET Budget=Budget-Budget/10;
+-- 2.18 Reassign all employees from the Research department (code 77) to the IT department (code 14).
+UPDATE employees SET Department=14 WHERE Department=77;
+-- 2.19 Delete from the table all employees in the IT department (code 14).
+SELECT * FROM employees;
+DELETE FROM employees WHERE Department=14;
+-- 2.20 Delete from the table all employees who work in departments with a budget greater than or equal to $60,000.
+DELETE FROM employees WHERE Department=(SELECT Code FROM departments WHERE Budget>=60000);
+-- 2.21 Delete from the table all employees.
+DELETE FROM employees;
+SELECT * FROM employees;
